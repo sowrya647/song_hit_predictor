@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Song Hit Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Song Hit Predictor</h1>
+        <form method="POST">
+            <!-- Sliders for 0-1 features -->
+            {% for f in ["danceability", "energy", "acousticness", "valence", "speechiness", "instrumentalness", "liveness"] %}
+                {% set val = request.form.get(f, 0.5) %}
+                <label>{{ f.replace("_", " ").title() }} 
+                    <span class="value-display" id="{{ f }}_val">{{ val }}</span>
+                </label>
+                <input type="range" name="{{ f }}" min="0" max="1" step="0.01" value="{{ val }}" 
+                       oninput="document.getElementById('{{ f }}_val').innerText = parseFloat(this.value).toFixed(2);">
+            {% endfor %}
+
+            <!-- Number inputs -->
+            {% set tempo_val = request.form.get('tempo', 120) %}
+            <label>Tempo (BPM)</label>
+            <input type="number" name="tempo" min="40" max="200" value="{{ tempo_val }}" step="1">
+
+            {% set loudness_val = request.form.get('loudness', -5) %}
+            <label>Loudness (dB, negative)</label>
+            <input type="number" name="loudness" min="-60" max="0" value="{{ loudness_val }}" step="1">
+
+            {% set duration_val = request.form.get('duration_ms', 210000) %}
+            <label>Duration (ms)</label>
+            <input type="number" name="duration_ms" min="30000" max="600000" value="{{ duration_val }}" step="1000">
+
+            <button type="submit">Predict </button>
+        </form>
+
+        {% if prediction %}
+            <div class="result {% if prediction == 'Hit' %}hit{% else %}non-hit{% endif %}">
+                Prediction: {{ prediction }}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
